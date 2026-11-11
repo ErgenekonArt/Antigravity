@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚙️ Calculator.app ve Calculator.dmg Oluştur
-        working-directory: Macbook/Calculator
+        working-directory: Calculator
         run: |
           chmod +x BuildCalculator.command CreateDMG.command
           ./BuildCalculator.command
@@ -26,7 +26,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Calculator-macOS-Universal-DMG
-          path: Macbook/Calculator/Calculator.dmg
+          path: Calculator/Calculator.dmg
 
       - name: 🚀 GitHub Releases (İndirme Sayfası) Yayınla
         uses: softprops/action-gh-release@v2
@@ -36,8 +36,9 @@ jobs:
           body: |
             ### 🍎 MacBook Özel Kısayollu Hesap Makinesi (v1.0.0)
             - **İndirme:** Aşağıdaki **`Calculator.dmg`** dosyasına tıklayarak doğrudan MacBook'unuza indirebilirsiniz.
+            - **Proje Klasörü:** https://github.com/ErgenekonArt/Antigravity/tree/main/Calculator
             - **Uyumluluk:** Tüm MacBook'lar (Apple Silicon M1/M2/M3/M4 ve Intel, macOS 11.0 ve üzeri).
             - **Özel Klavye Kısayolları:** `A` (+), `E` (−), `X` (×), `B` (÷)
-          files: Macbook/Calculator/Calculator.dmg
+          files: Calculator/Calculator.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
