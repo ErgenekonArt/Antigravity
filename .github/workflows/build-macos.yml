@@ -3,6 +3,8 @@ name: Build macOS Calculator (.app & .dmg)
 on:
   push:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - "Calculator/Calculator.dmg"
   workflow_dispatch:
 
 permissions:
@@ -15,12 +17,20 @@ jobs:
       - name: 📥 Kodları İndir
         uses: actions/checkout@v4
 
-      - name: ⚙️ Calculator.app ve Calculator.dmg Oluştur
+      - name: ⚙️ Calculator.app ve Calculator.dmg Oluştur (Universal)
         working-directory: Calculator
         run: |
           chmod +x BuildCalculator.command CreateDMG.command
-          ./BuildCalculator.command
           ./CreateDMG.command
+          lipo -info Calculator.app/Contents/MacOS/Calculator
+
+      - name: 💾 Yeni Universal Calculator.dmg Dosyasını Depoya Kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Calculator/Calculator.dmg
+          git diff --staged --quiet || git commit -m "Update Universal Calculator.dmg [skip ci]"
+          git push origin HEAD:main || true
 
       - name: 📦 DMG Paketini Artifact Olarak Yükle
         uses: actions/upload-artifact@v4
@@ -28,17 +38,11 @@ jobs:
           name: Calculator-macOS-Universal-DMG
           path: Calculator/Calculator.dmg
 
-      - name: 🚀 GitHub Releases (İndirme Sayfası) Yayınla
+      - name: 🚀 GitHub Releases Yayınla
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
-          name: "🍎 MacBook Hesap Makinesi v1.0.0 (Universal macOS 11+)"
-          body: |
-            ### 🍎 MacBook Özel Kısayollu Hesap Makinesi (v1.0.0)
-            - **İndirme:** Aşağıdaki **`Calculator.dmg`** dosyasına tıklayarak doğrudan MacBook'unuza indirebilirsiniz.
-            - **Proje Klasörü:** https://github.com/ErgenekonArt/Antigravity/tree/main/Calculator
-            - **Uyumluluk:** Tüm MacBook'lar (Apple Silicon M1/M2/M3/M4 ve Intel, macOS 11.0 ve üzeri).
-            - **Özel Klavye Kısayolları:** `A` (+), `E` (−), `X` (×), `B` (÷)
+          name: "🍎 MacBook Hesap Makinesi v1.0.0 (Universal: Intel + M1/M2/M3/M4)"
           files: Calculator/Calculator.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
